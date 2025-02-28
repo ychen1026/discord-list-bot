@@ -102,7 +102,7 @@ async def slash_list_remove_list(ctx: SlashContext, list_name: str):
     await ldb.delete_list(int(ctx.guild_id), list_name)
     await ctx.send("list deleted!\n")
     
-@slash_list.subcommand(sub_cmd_name="delete-item", sub_cmd_description="deletes a item from list")
+@slash_list.subcommand(sub_cmd_name="delete-item", sub_cmd_description="deletes an item from list")
 @slash_option(
         name="list-name",
         argument_name="list_name",
@@ -119,6 +119,6 @@ async def slash_list_remove_list(ctx: SlashContext, list_name: str):
         )
 async def slash_list_delete_item(ctx: SlashContext, list_name: str, item_name):
     await ldb.delete_item(int(ctx.guild_id), list_name, item_name)
-    await ctx.send("list deleted!\n")
+    await ctx.send("item deleted!\n")
 
 bot.start(bot_token)
