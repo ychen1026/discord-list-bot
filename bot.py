@@ -1,13 +1,18 @@
 from dotenv import load_dotenv
+from http.client import HTTPException
 from interactions import (
-        Client, Intents, listen,
+        Client, Intents, listen, Embed,
         slash_command, slash_option, OptionType, SlashContext
         )
 import os
 import list_db as ldb
+import datetime
+import random
 
 load_dotenv()
 bot_token = os.getenv("BOT_TOKEN")
+
+base_path = os.path.join("D:\\", "disc_bot_clips", "valorant")
 
 bot = Client(intents=Intents.DEFAULT |
                      Intents.GUILD_PRESENCES |
@@ -19,11 +24,16 @@ async def on_ready():
     print("following are the available application commands")
     for cmd in bot.application_commands:
         print(cmd.resolved_name)
-    
 
-@slash_command(name="slander", description="slander yoof")
+@slash_command(name="slander", description="slander tann")
 async def slash_slander(ctx: SlashContext):
-    await ctx.send("yoof sucks at valo")
+    embedSlander = Embed(
+        title= "slander",
+        description= "tann sucks at valo",
+        color= "#d0b0f7",
+        )
+    embedSlander.set_image(url="https://media1.tenor.com/m/qKTBsktfhSgAAAAd/punch-blue-hoodie.gif")
+    await ctx.send(embed=embedSlander)
 
 @slash_command(name="list")
 async def slash_list(ctx: SlashContext):
@@ -121,4 +131,37 @@ async def slash_list_delete_item(ctx: SlashContext, list_name: str, item_name):
     await ldb.delete_item(int(ctx.guild_id), list_name, item_name)
     await ctx.send("item deleted!\n")
 
+@slash_command(name="time", description="tells the current time")
+async def slash_time(ctx: SlashContext):
+    embedTime = Embed(
+        title= "Time", 
+        color= "#d0b0f7",
+        timestamp=datetime.datetime.now()) 
+    await ctx.send(embed=embedTime)
+
+@slash_command(name="whiff", description= "send a random video of someone whiffing")
+@slash_option(
+    name= "name",
+    description= "name of whiffer",
+    required= True,
+    opt_type= OptionType.STRING
+)
+async def slash_whiff(ctx: SlashContext, name: str=""):
+    name= name.lower()
+    clip_path = os.path.join(base_path, name + "_whiff")
+    
+    if os.path.exists(clip_path):
+        embedWhiff = Embed(
+        title= name + " whiff:",
+        color= "#d0b0f7",
+        )
+        rclip = os.path.join(clip_path, random.choice(os.listdir(clip_path)))
+        try:
+            await ctx.send(embed=embedWhiff, file=rclip)
+        except  as e:
+            print(f"{rclip} video too large will now delete from folder")
+            os.remove(rclip)
+            await slash_whiff(ctx, name)
+    else:
+        await ctx.send("user not found")
 bot.start(bot_token)
